@@ -50,9 +50,10 @@ The following series of commands will extract the \texttt{.zip} archive and move
 
 \begin{fullwidth}
 \begin{lstlisting}[style=text]
-wget https://github.com/krtkl/snickerdoodle-board-files/archive/master.zip
-cd snickerdoodle-board-files-master
-rsync -av --exclude-from=EXCLUDE ./* /opt/Xilinx/Vivado/2015.4/data/boards/board_files/
+$ wget https://github.com/krtkl/snickerdoodle-board-files/archive/master.zip
+$ unzip master.zip
+$ cd snickerdoodle-board-files-master
+$ rsync -av --exclude-from=EXCLUDE ./* /opt/Xilinx/Vivado/2015.4/data/boards/board_files/
 \end{lstlisting}
 \end{fullwidth}
 

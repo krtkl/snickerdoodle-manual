@@ -223,10 +223,10 @@ After downloading the SD card components
 The \textit{BOOT} components can be installed onto the SD card using the \texttt{cp} command, starting with \texttt{BOOT.bin}. In this example, the files are copied to the \textit{BOOT} partition that has been mounted at \texttt{/media/user/BOOT}. As stated above, the \texttt{mount} command can be used to \hyperref[sub:locatesd]{locate the mount point of the SD card partitions}. \\
 
 \begin{lstlisting}
-$ cp BOOT.bin /media/user/BOOT
-$ cp uEnv.txt /media/user/BOOT
-$ cp devicetree.dtb /media/user/BOOT
-$ cp uImage /media/user/BOOT
+$ cp BOOT.bin /media/$USER/BOOT
+$ cp uEnv.txt /media/$USER/BOOT
+$ cp devicetree.dtb /media/$USER/BOOT
+$ cp uImage /media/$USER/BOOT
 \end{lstlisting}
 
 ~\\
