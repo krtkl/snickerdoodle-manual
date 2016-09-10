@@ -1,0 +1,434 @@
+\section{SPI Configuration}
+
+\begin{table}
+	\centering
+	\begin{tabular}{k | r}
+		Data Size	& 8 bit \\
+		Clock Polarity	& Low \\
+		Clock Phase	& Rising Edge \\
+		Byte Order	& Most Significant Bit First \\ 
+	\end{tabular}
+	\caption{SPI Peripheral Configuration Parameters}
+\end{table}
+
+
+
+\begin{figure}
+\centering
+	\begin{tikztimingtable}[
+		%scale=2.0,
+		xscale=2.0,
+		yscale=1.5,
+		timing/name/.style={font=\normalfont},
+		timing/table/header/.style={font=\normalfont},
+		timing/x/.style={black},
+		timing/z/.style={black},
+		timing/slope=0.2,
+		timing/c/no arrows,
+		timing/c/arrow tip=stealth,
+		timing/c/arrow pos=0.75,
+	    	]
+	SCLK		& LL E [timing/c/rising arrows] 2{C}; 5{C}; [gray, dotted] 2{C}; 6{C}\\
+    	MOSI 		& U 2D{MSB} 2D{} 2D{} D; [gray, dotted] 2D; D > 2D{} 2D{} 2D{LSB} U\\
+    	MISO		& U 2D{MSB} 2D{} 2D{} D; [gray, dotted] 2D; D > 2D{} 2D{} 2D{LSB} U\\
+	NSS		& H 7{L}; [gray, dotted] 2L; 5{L} H \\
+    	\extracode
+			%\tableheader{Signal}{}
+			%\tablerules
+    		%\draw (0,0) circle (0.2pt); % Origin
+    		\begin{pgfonlayer}{background}
+    			\vertlines[gray, dashed]{2, 4, 6, 12, 14}
+    		\end{pgfonlayer}
+    \end{tikztimingtable}
+    \caption{SPI Transmission Timing (Phase, Polarity and Byte Order)}
+    \label{fig:beginrwtrans}
+\end{figure}
+
+
+In the following commands and messages, the least significant bit (LSB) is denoted with a 0 index and the most significant bit (MSB) of a single byte transmission is denoted with an index of 7. \\
+
+
+\section{I$^2$C Bridge}
+
+
+\section{SPI Commands}
+
+\subsection{Channel Selection Command (0x80)}
+
+All transactions begin with the channel selection command. The command requires the three LSBs contain the channel selection, representing one of the eight I$^2$C switch channels, exclusively. \figref{fig:chselcommand} shows organization of the 3-bit channel selection within the \textit{channel selection} command. \\
+
+
+\begin{figure}
+	\begin{tikzpicture}
+		\bitrect{8}{8-\bit}
+		\constbits{0}{5}{1,0,0,0,0}
+		\combits{5}{3}{CH\_SEL}{6.5,-0.5}{
+			\begin{tabular}{r l}
+			\multicolumn{2}{l}{\bfseries[2:0] CH\_SEL} \\
+			\multicolumn{2}{l}{TCA9548A Channel Selection} \\
+			001:	& Channel 0 selected \\
+			... \\
+			111:	& Channel 7 selected
+			\end{tabular}
+		}
+	\end{tikzpicture}
+	\caption{TCA9548A Channel Selection During Begin Read/Write Transaction}
+	\label{fig:chselcommand}
+\end{figure}
+
+
+
+\subsection{Read/Write Command (0xA0)}
+
+After initiating the transaction and setting the channel, the device settings and address can be specified for communication. \figref{fig:readwritecommand} shows the organization of the device settings in the two bytes following the channel selection. The \textit{read/write} command includes specifications for the transaction type, frequency selection, address length and either a 7 or 10 bit device address.
+
+\begin{figure*}
+	\begin{tikzpicture}
+		\bitrect{16}{16-\bit}
+		\constbits{0}{3}{1,0,1}
+		\combits{3}{1}{F}{12,-6}{
+			\begin{tabular}{r l}
+			\multicolumn{2}{l}{\bfseries[12] F} \\
+			\multicolumn{2}{l}{I$^2$C Frequency Selection} \\
+			0:	& 100kHz selected \\
+			1:	& 400kHz selected
+			\end{tabular}
+		}
+		\combits{4}{1}{LEN}{12,-4}{
+			\begin{tabular}{r l}
+			\multicolumn{2}{l}{\bfseries[11] LEN} \\
+			\multicolumn{2}{l}{Address Length} \\
+			0:	& 7-bit address \\
+			1:	& 10-bit address
+			\end{tabular}
+		}
+		\combits{5}{1}{R/W}{12,-2}{
+			\begin{tabular}{r l}
+			\multicolumn{2}{l}{\bfseries[10] R/W} \\
+			\multicolumn{2}{l}{Read/Write Transaction} \\
+			0:	& Write transaction \\
+			1:	& Read transaction
+			\end{tabular}		}
+		\combits{6}{10}{ADDR}{12,-0.5}{
+			\begin{tabular}{r l}
+			\multicolumn{2}{l}{\bfseries[9:0] ADDR} \\
+			\multicolumn{2}{l}{I$^2$C device address} \\
+			\end{tabular}
+		}
+%		\combits{8}{8}{ADDR}{14,-0.5}{
+%			\begin{tabular}{r l}
+%			\multicolumn{2}{l}{\bfseries[7:0] ADDR} \\
+%			\multicolumn{2}{l}{I$^2$C device address 8 LSBs}
+%			\end{tabular}
+%		}
+	\end{tikzpicture}
+	\caption{Device Frequency and Address During Begin Read/Write Transaction}
+	\label{fig:readwritecommand}
+\end{figure*}
+
+
+\infonote{After specifying a read or write operation, the next byte following the \textit{read/write} command is expected to represent the length of bytes to transmit or receive. This limits the number of bytes for any read/write command to 255 bytes}
+
+
+\subsection{Get Status Command (0xCB)}
+
+Following any read or write commands, the status of the operation should be checked with the \textit{get status} command. The response to such a command will be formatted as shown in \figref{fig:statusresponse}. The \textit{get status} command does not include any bitwise parameters.
+
+
+\begin{figure}
+	\begin{tikzpicture}
+		\bitrect{8}{8-\bit}
+		\constbits{0}{5}{1,0,1,1,1}
+		\combits{5}{1}{U}{6.5,-4.5}{
+			\begin{tabular}{r l}
+			\multicolumn{2}{l}{\bfseries[2] U} \\
+			\multicolumn{2}{l}{SPI Protocol Error} \\
+			0:	& No SPI protocol error \\
+			1:	& SPI protocol error
+			\end{tabular}
+		}
+		\combits{6}{1}{E}{6.5,-2.5}{
+			\begin{tabular}{r l}
+			\multicolumn{2}{l}{\bfseries[1] E} \\
+			\multicolumn{2}{l}{I$^2$C Error} \\
+			0:	& No I$^2$C error \\
+			1:	& I$^2$C error
+			\end{tabular}
+		}
+		\combits{7}{1}{D}{6.5,-0.5}{
+			\begin{tabular}{r l}
+			\multicolumn{2}{l}{\bfseries[0] D} \\
+			\multicolumn{2}{l}{Transaction Pending} \\
+			0:	& Transaction is pending \\
+			1:	& Last R/W transaction is done
+			\end{tabular}
+		}
+	\end{tikzpicture}
+	\caption{Get Status Response}
+	\label{fig:statusresponse}
+\end{figure}
+
+
+\subsection{Finish Read Command (0x93)}
+
+To finish reading from a device, the finish read command should be used. This command should be used after checking the status of a previous read command by using the \textit{get status} command. \figref{fig:spireadexample} shows an example read interaction with a device of which is finished using the \textit{finish read} command. The \textit{finish read} command does not contain any bitwise parameters. The response from the device will include the number of bytes specified by the previous \textit{read} command.
+
+
+\section{Examples}
+
+
+\subsection{Write Operation}
+
+In the following example, the first byte sent (0x80) begins the transaction, targeting I$^2$C channel 0. The second byte specifies a read/write command with parameters specified in \figref{fig:readwritecommand}. The third byte (0x20) is the device address. The next byte transmitted (0x02) sets the message length of 2 bytes, followed immediately by the data bytes (both 0x00, in this case).
+
+\begin{figure}
+\centering
+	\begin{tikztimingtable}[
+		%scale=2.0,
+		xscale=2.0,
+		yscale=1.5,
+		timing/name/.style={font=\normalfont},
+		timing/table/header/.style={font=\normalfont},
+		timing/x/.style={black},
+		timing/z/.style={black},
+		timing/slope=0.2,
+		timing/c/no arrows,
+		timing/c/arrow tip=stealth,
+		timing/c/arrow pos=0.75,
+	    	]
+    	MOSI 		& Z 2D{0x80} 2D{0xA0} 2D{0x20} 2D{0x02} 2D{0x00} 2D{0x00} Z\\
+	NSS		& H 12{L} H \\
+    \end{tikztimingtable}
+    \caption{SPI Write Command Example}
+    \label{fig:spiwritecommand}
+\end{figure}
+
+
+\figref{fig:i2cwriteoperation} shows the clocking of the corresponding I$^2$C transmission to the SPI write operation specified in \figref{fig:spiwritecommand}. The first byte transmitted after the start condition represents a combination of the 7-bit device address (0x20) and the read/write bit. The following two bytes are the data bytes specified in the write command.
+
+\begin{figure*}
+	\centering
+	\begin{tikztimingtable}[
+		%scale=2.0,
+		xscale=2.0,
+		yscale=1.5,
+		timing/name/.style={font=\normalfont},
+		timing/table/header/.style={font=\normalfont},
+		timing/x/.style={black},
+		timing/z/.style={black},
+		timing/slope=0.2,
+		timing/c/no arrows,
+		timing/c/arrow tip=stealth,
+		timing/c/arrow pos=0.75,
+		timing/metachar={{K}[1]{#1l !{++(0,+.5\yunit)} N[rectangle,xshift=2pt]{\small0} !{++(0,-.5\yunit)} #1l}},
+		timing/metachar={{J}[1]{#1h !{++(0,-.5\yunit)} N[rectangle,xshift=2pt]{\small1} !{++(0,+.5\yunit)} #1h}}
+	    	]
+		& Z 8D{0x40 (0x20 7-bit address, R/W = 0)} D{ACK} 8D{0x00 (register address)} D{ACK} 8D{0x00 (Write Value)} D{ACK} 2Z\\
+	SDA	& h l K J 6{K}L 8{K} L 8{K} 2L 2h\\
+	SCL	& h 28{hl} 3h\\
+	\extracode
+	\begin{pgfonlayer}{background}
+		\vertlines[gray, dashed]{1.0, 9.2, 10.2, 18.2, 19.2, 27.2, 28.2}
+		\draw[dashed] (0.25, -5.25) rectangle (1.0, -0.5);
+		\draw[dashed] (28.7, -5.25) rectangle (29.45, -0.5);
+		\node at (0.625,-4.75) {S};
+		\node at (29.075,-4.75) {P};
+	\end{pgfonlayer}
+	\end{tikztimingtable}
+	\caption{Corresponding I$^2$C Write Operation}
+	\label{fig:i2cwriteoperation}
+\end{figure*}
+
+
+%The corresponding I$^2$C transmission 
+
+%\begin{figure}
+%\centering
+%	\begin{tikztimingtable}[
+%		%scale=2.0,
+%		xscale=1,
+%		yscale=1.5,
+%		timing/name/.style={font=\normalfont},
+%		timing/table/header/.style={font=\normalfont},
+%		timing/x/.style={black},
+%		timing/z/.style={black},
+%		timing/slope=0.2,
+%		timing/c/no arrows,
+%		timing/c/arrow tip=stealth,
+%		timing/c/arrow pos=0.75,
+%	    	]
+%		& z Z 7D{0x20} D{R/W} D{ACK} H 8D{0x00} Z\\
+%	SDA	& h L H 7L 2L 8L				\\
+%	SCL	& 1.5h 9{lh} L 8{lh}				\\
+%    	\extracode
+%%	\begin{pgfonlayer}{background}
+%%    		\vertlines[gray, dashed]{0.85, 1.85, 6, 12, 14}
+%%    	\end{pgfonlayer}
+%	\end{tikztimingtable}
+%\end{figure}
+\subsection{Get Status Operation}
+
+
+The status of any previously specified operation on a channel can be checked with the \textit{get status} command. The \textit{get status} command does not trigger any device interaction (\ie read/write operations).
+
+\begin{figure}
+\centering
+	\begin{tikztimingtable}[
+		%scale=2.0,
+		xscale=2.0,
+		yscale=1.5,
+		timing/name/.style={font=\normalfont},
+		timing/table/header/.style={font=\normalfont},
+		timing/x/.style={black},
+		timing/z/.style={black},
+		timing/slope=0.2,
+		timing/c/no arrows,
+		timing/c/arrow tip=stealth,
+		timing/c/arrow pos=0.75,
+	    	]
+    	MOSI 		& Z 2D{0x80} 2D{0xCB} 4Z\\
+	MISO		& 5.5Z 2D{0xB0} 1.5Z \\
+	NSS		& H 7{L} H \\
+    \end{tikztimingtable}
+    \caption{SPI Get Status Command Example}
+\end{figure}
+
+
+
+\subsection{Read Operation}
+
+In the example in \figref{fig:spireadexample}, a read command is initiated followed by a check of the status before the read transaction is finished. To initiate read requests on an I$^2$C device, any data required to initialize the device needs to be written to the device before sending a read command. For example, if you wish to read a device register, the desired register address should be written to the device to specify the register for subsequent reads/writes. In the case of a write, the register contents can be immediately transmitted to the device. In the case of a write, a separate transaction must be initiated. When controlling an I$^2$C bus directly, this is often done using a re-start before transmitting the device address with the R/W bit set high. This protocol wraps the read portion of the transaction in separate messages, specifying an expected number of bytes to be read from the device.
+
+\begin{figure*}
+	\begin{tikzpicture}[
+		node distance=2.5cm,
+		conn/.style={
+			->,
+			>=stealth,
+			thick,
+			font={\footnotesize},
+			},
+		decision/.style={
+			diamond,
+			draw,
+			aspect=1.618,
+			thick,
+			minimum height=3em,
+			text centered,
+			},
+		block/.style={
+			rectangle,
+			draw,
+			thick,
+			minimum height=3em,
+			text width=4.5em,
+			text centered,
+			rounded corners,
+			}
+		]
+		\node [block] (write) {Write};
+		\node [block, right of=write] (chkstatus1) {Check Status};
+		\node [decision, right of=chkstatus1] (done1) {Done?};
+		\node [block, right of=done1] (read) {Read};
+		\node [block, right of=read] (chkstatus2) {Check Status};
+		\node [decision, right of=chkstatus2] (done2) {Done?};
+		\node [block, right of=done2] (readdone) {Finish Read};
+		
+		\draw [conn] (write) -- (chkstatus1);
+		\draw [conn] (chkstatus1) -- (done1);
+		\draw [conn] (done1) -- (read) node [midway, above] {yes};
+		\draw [conn] (done1) -- ++(0,-1.25) -| (chkstatus1) node [near start, below] {no};
+		\draw [conn] (read) -- (chkstatus2);
+		\draw [conn] (chkstatus2) -- (done2);
+		\draw [conn] (done2) -- (readdone) node [midway, above] {yes};
+		\draw [conn] (done2) -- ++(0,-1.25) -| (chkstatus2) node [near start, below] {no};
+	\end{tikzpicture}
+	\caption{Read Operation Flow}
+	\label{fig:readopflow}
+\end{figure*}
+
+
+\begin{enumerate}
+	\item Transmit the device address and any initializing data with a write operation
+	\item Check the status of the transmission using the status command
+		\begin{enumerate}
+			\item Re-check for transmission completion (if necessary) or until the process returns an error/timeout
+		\end{enumerate}
+	\item Initiate a read operation, specifying the number of bytes to be read from the device
+	\item Check the status of the read operation using the status command
+		\begin{enumerate}
+			\item Re-check for transmission completion (if necessary) or until the process returns an error/timeout
+		\end{enumerate}
+	\item Complete the read operation with the finish read command to get the specified number of bytes from the device
+\end{enumerate}
+
+\begin{figure*}
+\centering
+	\begin{tikztimingtable}[
+		%scale=2.0,
+		xscale=1.2,
+		yscale=1.5,
+		timing/name/.style={font=\normalfont},
+		timing/table/header/.style={font=\normalfont},
+		timing/x/.style={black},
+		timing/z/.style={black},
+		timing/slope=0.2,
+		timing/c/no arrows,
+		timing/c/arrow tip=stealth,
+		timing/c/arrow pos=0.75,
+	    	]
+    	MOSI 		& Z 2D{0x80} 2D{0xA0} 2D{0x20} 2D{0x01} 2D{0x09} z 2D{0x80} 2D{0xCB} 3Z 2D{0x80} 2D{0xCB} 3Z 2D{0x80} 2D{0xA4} 2D{0x20} 2D{0x01} z 2D{0x80} 2D{0xCB} 3Z 2D{0x80} 2D{0x93} 3.5Z \\
+	MISO		& 16Z 2D{0xB0} 5Z 2D{0xB1} 13.5Z 2D{0xB1} 5Z 2D{0xC2} Z\\
+	NSS		& H 10L h 6.5L h 6.5L h 8L h 6.5L h 6.5L H\\
+    	\extracode
+	\begin{pgfonlayer}{background}
+    		\vertlines[gray, dashed]{1, 11.5, 18.5, 25.5, 34, 41}
+    	\end{pgfonlayer}
+    \end{tikztimingtable}
+    \caption{SPI Read Command Example}
+    \label{fig:spireadexample}
+\end{figure*}
+
+
+\figref{fig:spireadexample} shows six separate interactions with the device, each separated by activation of the NSS signal. The first interaction writes the value 0x09 to the device at address 0x20. This prepares the device for reading of the register at address 0x09. The next two interactions are queries of the transmission status. The first of these interactions returns an "transaction pending" status, while the second returns "done". After receiving a completed status for the write operation, a read operation is initiated by sending the device 0xA4 followed by 0x01 to specify that one byte should be read. Again, a check of the status returns a value of 0xB1 to indicate the read transaction has been completed. The final interaction completes the read operation with the finish read transaction command (0x93) and reading of the register value from the device (0xC2). \figref{fig:i2creadoperation} shows the I$^2$C operation corresponding to the SPI write command sequence.
+
+
+\begin{figure*}
+	\centering
+	\begin{tikztimingtable}[
+		%scale=2.0,
+		xscale=1.4,
+		yscale=1.5,
+		timing/name/.style={font=\normalfont},
+		timing/table/header/.style={font=\normalfont},
+		timing/x/.style={black},
+		timing/z/.style={black},
+		timing/slope=0.2,
+		timing/c/no arrows,
+		timing/c/arrow tip=stealth,
+		timing/c/arrow pos=0.75,
+		timing/metachar={{K}[1]{#1l !{++(0,+.5\yunit)} N[rectangle,xshift=1pt]{\small0} !{++(0,-.5\yunit)} #1l}},
+		timing/metachar={{J}[1]{#1h !{++(0,-.5\yunit)} N[rectangle,xshift=1pt]{\small1} !{++(0,+.5\yunit)} #1h}}
+	    	]
+		& Z 8D{0x40 (0x20 addr., R/W = 0)} D{A} 8D{0x09 (register address)} D{A} Z z; [gray, dotted] Z; Z 8D{0x41 (0x20 addr., R/W = 1)} D{A} 8D{0xC2 (read from device)} D{A} 2Z\\
+	SDA	& h l K J 6{K} L 4{K} J 2{K} J 2L h; [gray, dotted] H; h l K J 5{K} J L 2{J} 4{K} J K 2L H\\
+	SCL	& h 19{hl} H; [gray, dotted] H; h 19{hl} 3h\\
+	\extracode
+	\begin{pgfonlayer}{background}
+		\vertlines[gray, dashed]{1.0, 9.2, 10.2, 18.2, 19.2, 22.5, 30.7, 31.7, 39.7, 40.7}
+		
+		\draw[dashed] (0.25, -5.25) rectangle (1.0, -0.5);
+		\draw[dashed] (19.7, -5.25) rectangle (20.45, -0.5);
+		\draw[dashed] (21.75, -5.25) rectangle (22.5, -0.5);
+		\draw[dashed] (41.2, -5.25) rectangle (41.95, -0.5);
+		\node at (0.625,-4.75) {S};
+		\node at (20.075,-4.75) {P};
+		\node at (22.125,-4.75) {S};
+		\node at (41.58,-4.75) {P};
+	\end{pgfonlayer}
+	\end{tikztimingtable}
+	\caption{Corresponding I$^2$C Read Operation}
+	\label{fig:i2creadoperation}
+\end{figure*}
+
+The corresponding I$^2$C communications demonstrates the read operation division into two sequences. The first sequence writes the address to the device that should be read, while the second operation completes the read with 0xC2 returned from the device.

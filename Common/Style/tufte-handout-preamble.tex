@@ -1,0 +1,622 @@
+\documentclass[sfsidenotes, justified]{tufte-handout}
+
+%\geometry{showframe}% for debugging purposes -- displays the margins
+
+\usepackage{amsmath}
+
+% Set up the images/graphics package
+\usepackage{graphicx}
+\setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
+\graphicspath{{graphics/}}
+
+% The following package makes prettier tables.  We're all about the bling!
+\usepackage{booktabs}
+
+\usepackage[final]{pdfpages}
+
+% The units package provides nice, non-stacked fractions and better spacing
+% for units.
+\usepackage{units}
+
+% The fancyvrb package lets us customize the formatting of verbatim
+% environments.  We use a slightly smaller font.
+\usepackage{fancyvrb}
+\fvset{fontsize=\normalsize}
+
+% Link coloring
+\usepackage{hyperref}
+
+% Small sections of multiple columns
+\usepackage{multicol}
+
+% Table formatting
+\usepackage{tabularx}
+
+% Provides paragraphs of dummy text
+\usepackage{lipsum}
+
+% Negative hanging indents
+\usepackage{hanging}
+
+% Used for printing a trailing space better than using a tilde (~) using the \xspace command
+\usepackage{xspace} 
+
+\usepackage{caption}
+
+% Provide colors for listings and other entities
+\usepackage{color} 
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{dkgray}{rgb}{0.25,0.25,0.25}
+\definecolor{ltgreen}{rgb}{0.90,1,0.90}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{matlabcellcolor}{RGB}{252,251,220}
+\definecolor{ltred}{rgb}{1,0.75,0.75}
+\definecolor{orange}{rgb}{1, 0.5, 0}
+\definecolor{yelloworange}{rgb}{1, 0.65, 0.15}
+\definecolor{orangered}{rgb}{1, 0.3, 0.1}
+\definecolor{krtklbgcolor}{RGB}{255, 253, 244}
+\definecolor{krtklverylight}{RGB}{202, 223, 242}
+\definecolor{krtkllightblue}{RGB}{149, 191, 230}
+\definecolor{krtklmedblue}{RGB}{0, 118, 187}
+\definecolor{krtkldark}{RGB}{0, 41, 57}
+\definecolor{krtkllightyellow}{RGB}{255, 232, 158}
+\definecolor{krtkllightred}{RGB}{255, 188, 158}
+\definecolor{krtklyellow}{RGB}{255, 187, 0}
+\definecolor{krtklred}{RGB}{255, 61, 0}
+
+% Code Listings
+\usepackage{listings} 
+\lstset{
+  frame=single,
+  backgroundcolor=\color{krtklbgcolor},
+  language=C,
+  aboveskip=2em,
+  belowskip=2em,
+  showstringspaces=false,
+  columns=fixed,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numbersep=5pt,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=4,
+  rulecolor=\color{dkgray},
+  escapeinside={(*@}{@*)}
+}
+
+\lstdefinestyle{text}{%
+  frame=single,
+  backgroundcolor=\color{krtklbgcolor},
+  language=bash,
+  showstringspaces=false,
+  columns=fixed,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numbersep=5pt,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=, %\color{blue},
+  commentstyle=, %\color{dkgreen},
+  stringstyle=, %\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=4,
+  rulecolor=\color{dkgray}
+}
+
+
+\lstdefinestyle{framelesstext}{%
+  frame=none,
+  backgroundcolor=\color{white},
+  language=bash,
+  showstringspaces=false,
+  columns=fixed,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numbersep=5pt,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=,
+  commentstyle=,
+  stringstyle=,
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=4,
+  rulecolor=\color{dkgray}
+}
+  
+  
+\DeclareCaptionBox{listing}{%
+	\begin{@tufte@margin@float}[4em]
+	#2
+	\end{@tufte@margin@float}
+}
+
+\captionsetup[lstlisting]{box=listing, labelfont={color=krtklmedblue,bf,footnotesize}, font={color=black,normalfont,footnotesize}}
+
+\renewcommand\lstlistingname{Code Listing}
+\renewcommand\lstlistlistingname{List of Code Listings}
+
+%\usepackage{lstlinebgrd}
+\usepackage{soul}
+\sethlcolor{krtkllightblue}
+
+\usepackage{tikz}
+
+\usepackage{tikz-timing}
+\usetikztiminglibrary{arrows,clockarrows}
+
+\usetikzlibrary{mindmap,shadows,shapes,arrows,positioning,decorations}
+
+\usepackage{bytefield}
+
+\newcommand*{\info}[4][16.3]{%
+  \node [ annotation, #3, scale=0.65, text width = #1em,
+          inner sep = 2mm ] at (#2) {%
+  \list{$\bullet$}{\topsep=0pt\itemsep=0pt\parsep=0pt
+    \parskip=0pt\labelwidth=8pt\leftmargin=8pt
+    \itemindent=0pt\labelsep=2pt}%
+    #4
+  \endlist
+  };
+}
+
+
+%\usetikzlibrary{matrix,calc,shapes}
+\usetikzlibrary{trees,mindmap,decorations.pathreplacing, shadows,shapes,arrows,positioning,fit}
+
+% Define block styles
+\tikzstyle{decision} = [diamond, draw, fill=krtkllightblue, 
+    text width=4.5em, text badly centered, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, text width=5em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
+    minimum height=2em]
+    
+\tikzstyle{bit} = [
+	rectangle,
+	draw, 
+	fill=white, 
+	text centered,
+	%node distance=0,
+	%inner sep=5pt
+	]
+	
+\tikzset{
+	ncbar angle/.initial=90,
+	ncbar/.style={
+		to path=(\tikztostart)
+		-- ($(\tikztostart)!#1!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztotarget)$)
+	        -- ($(\tikztotarget)!($(\tikztostart)!#1!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztotarget)$)!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztostart)$)
+        	-- (\tikztotarget)
+    	},
+	ncbar/.default=0.5cm,
+}
+
+	
+\tikzset{
+	square left brace/.style={ncbar=0.5cm},
+	square right brace/.style={ncbar=-0.5cm}
+}
+
+
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
+
+\newcommand{\bitrect}[2]{
+  \begin{pgfonlayer}{foreground}
+    \draw [thick] (0,0) rectangle (#1*0.75,0.75);
+    \pgfmathsetmacro\result{(#1-1)}
+    \foreach \x in {1,...,\result}
+    	\pgfmathsetmacro\xpos{\x*0.75}
+      \draw [thin] (\xpos,0.75) -- (\xpos, 0.6);		% Draw tick marks between bits
+  \end{pgfonlayer}
+%  \node [below left, align=right] at (0,0) {Type \\ Reset};
+  \bitlabels{#1}{#2}
+}
+
+\newcommand{\rwbits}[3]{
+  \draw [thick] (#1,0) rectangle ++(#2,1) node[pos=0.5]{#3};
+  \pgfmathsetmacro\start{#1+0.5}
+  \pgfmathsetmacro\finish{#1+#2-0.5}
+%  \foreach \x in {\start,...,\finish}
+%    \node [below, align=center] at (\x, 0) {R/W \\ 0};
+}
+
+\newcommand{\robits}[3]{
+  \begin{pgfonlayer}{background}
+    \draw [thick, fill=lightgray] (#1,0) rectangle ++(#2,1) node[pos=0.5]{#3};
+  \end{pgfonlayer}
+  \pgfmathsetmacro\start{#1+0.5}
+  \pgfmathsetmacro\finish{#1+#2-0.5}
+%  \foreach \x in {\start,...,\finish}
+%    \node [below, align=center] at (\x, 0) {RO \\ 0};
+}
+
+% The first argument is the starting bit (x-coordinate)
+% The second argument is the length of the field
+% The third argument is the bit labels
+\newcommand{\constbits}[3]{
+	%\draw [thick] (#1, 0) rectangle ++(#2, 1);
+	\pgfmathsetmacro\start{#1+0.5}
+	\pgfmathsetmacro\finish{#1+#2-0.5}
+	\foreach[count=\i] \bit in {#3} {
+		\pgfmathsetmacro\xpos{(#1+\i-0.5)*0.75}
+		\node at (\xpos, 0.375) {\bit};
+		\ifnum \i>#2
+			\breakforeach	% Don't display characters in list longer than number of bits
+		\fi
+	}
+}
+
+\newcommand{\combits}[5]{
+	\pgfmathsetmacro\rectstart{#1*0.75}
+	\pgfmathsetmacro\rectend{#2*0.75}
+  \draw [thick] (\rectstart,0) rectangle ++(\rectend,0.75) node[pos=0.5]{#3};
+  \pgfmathsetmacro\start{\rectstart+0.1}
+  \pgfmathsetmacro\finish{\rectstart+\rectend-0.1}
+  \draw [thick] (\start, -0.1) -- (\start, -0.20) -- (\finish, -0.20) -- (\finish, -0.1);
+  \node (y) at (#4) [anchor=north west] {\small#5};
+  \draw [thick] ($(\start, -0.20)!0.5!(\finish, -0.20)$) |- ($(y.north west) - (0,0.4)$);
+  
+  % Add a fourth argument for the description node
+%  \foreach \x in {\start,...,\finish}
+%    \node [below, align=center] at (\x, 0) {R/W \\ 0};
+}
+
+\newcommand{\bitlabels}[2]{
+  \foreach \bit in {1,...,#1}{
+     \pgfmathsetmacro\result{#2}
+     \pgfmathsetmacro\xpos{(\bit-0.5)*0.75}
+     \node [above] at (\xpos, 0.75) {\textsf{\footnotesize\pgfmathprintnumber[assume math mode=true]{\result}}};
+   }
+}
+
+
+
+
+\newcommand{\yes}{edge node [above] {yes}}
+\newcommand{\no}{edge  node [left]  {no}}
+
+\usepackage{fourier}								% Icon library
+\newcommand{\Danger}{{\Large\danger}}
+\newcommand{\Noway}{{\Large\noway}}
+
+\usepackage{framed}
+
+\usepackage[framemethod=TikZ]{mdframed}
+
+\mdfdefinestyle{marginnote}{%
+	linewidth=2pt,
+	linecolor=krtklmedblue,
+	backgroundcolor=krtklverylight,
+	roundcorner=6pt,
+}
+
+\mdfdefinestyle{cautionnote}{%
+	linewidth=2pt,
+	linecolor=orange,
+	backgroundcolor=white,
+	roundcorner=6pt,
+}
+
+\mdfdefinestyle{warningnote}{%
+	linewidth=2pt,
+	linecolor=red,
+	backgroundcolor=white,
+	roundcorner=6pt,
+}
+
+
+\newcommand{\Caution}{\colorbox{orange}{\textsf{\color{white}CAUTION}}\quad}
+\newcommand{\Warning}{\colorbox{red}{\textsf{\color{white}WARNING}}\quad}
+
+%\let\oldtextregistered\textregistered
+%\renewcommand{\textregistered}{%
+%	\textsuperscript{\oldtextregistered}
+%}
+
+\newcommand{\infonote}[1]{%
+	\begin{mdframed}[style=marginnote]
+		\noindent
+		\begin{tikzpicture}[overlay, baseline=0em, shift={(-0.35, 0.35)}]
+			\filldraw[color=krtklmedblue, fill=white, very thick](0, 0) circle (0.27) node {\color{krtklmedblue}\bfseries\Large i};
+		\end{tikzpicture}
+		{\color{black}\itshape
+		#1
+		}
+	\end{mdframed}
+}
+
+
+
+\newcommand{\margininfonote}[1]{%
+	\marginnote{%
+		\infonote{#1}
+}}
+
+
+%
+% Warnings and cautions
+%
+\newcommand{\warningnote}[1]{%
+	\begin{mdframed}[style=warningnote]
+		\noindent
+		\begin{tikzpicture}[overlay, baseline=0em, shift={(-0.35, 0.35)}]
+			\coordinate (A) at (0, 0.405);
+			\coordinate (B) at (-0.351, -0.203);
+			\coordinate (C) at (0.351, -0.203);
+			\draw[color=red, fill=white, very thick] (A) -- (B) -- (C) -- cycle (0, 0.05) node {\color{red}\bfseries\Large !};
+		%\filldraw[color=krtklmedblue, fill=white, very thick](0, 0) circle (0.27) node {\color{krtklmedblue}\bfseries\Large !};
+		\end{tikzpicture}
+		\Warning #1
+	\end{mdframed}
+}
+
+
+\newcommand{\cautionnote}[1]{
+	\begin{mdframed}[style=cautionnote]
+		\noindent
+		\begin{tikzpicture}[overlay, baseline=0em, shift={(-0.40, 0.45)}]
+		\filldraw[color=orange, fill=orange, very thick](0, 0) circle (0.27);
+		\draw[color=white, very thick](-0.19, 0) -- (0.19, 0);
+		\end{tikzpicture}
+		\Caution #1
+	\end{mdframed}
+}
+
+\newcommand{\marginwarningnote}[1]{\marginnote{%
+	\begin{mdframed}[style=warningnote]
+		\noindent
+		\begin{tikzpicture}[overlay, baseline=0em, shift={(-0.35, 0.35)}]
+			\coordinate (A) at (0, 0.405);
+			\coordinate (B) at (-0.351, -0.203);
+			\coordinate (C) at (0.351, -0.203);
+			\draw[color=red, fill=white, very thick] (A) -- (B) -- (C) -- cycle (0, 0.05) node {\color{red}\bfseries\Large !};
+		%\filldraw[color=krtklmedblue, fill=white, very thick](0, 0) circle (0.27) node {\color{krtklmedblue}\bfseries\Large !};
+		\end{tikzpicture}
+		\Warning #1
+	\end{mdframed}
+}}
+
+\newcommand{\margincautionnote}[1]{\marginnote{
+	\begin{mdframed}[style=cautionnote]
+		\noindent
+		\begin{tikzpicture}[overlay, baseline=0em, shift={(-0.35, 0.35)}]
+		\filldraw[color=orange, fill=orange, very thick](0, 0) circle (0.27);
+		\draw[color=white, very thick](-0.19, 0) -- (0.19, 0);
+		\end{tikzpicture}
+		\Caution #1
+	\end{mdframed}
+}}
+
+
+\newcommand{\file}[1]{{\textit{\ttfamily #1}}{\index{#1@\textit{\ttfamily #1}}}}
+\newcommand{\cmdstr}[1]{{\texttt{#1}\index{#1@\texttt{#1}}}}
+
+
+
+%
+% Custom command for printing file paths and menu selections
+%
+\newcommand{\menupath}[2][ $\guillemotright$ ]{%
+	\begingroup
+	\bfseries\itshape
+	\def\nextitem{\def\nextitem{#1}}% Separator
+	\renewcommand*{\do}[1]{\nextitem ##1}% How to process each item
+	\docsvlist{#2}% Process list
+	\endgroup
+}
+
+
+
+\newcommand{\dirpath}[2][ $\guillemotright$ ]{%
+	\begingroup
+	\ttfamily\bfseries
+	\def\nextitem{\def\nextitem{#1}}% Separator
+	\renewcommand*{\do}[1]{\nextitem ##1}% How to process each item
+	\docsvlist{#2}% Process list
+	\endgroup
+}
+
+
+\newcommand{\snickerdoodle}{%
+	\includegraphics[height=1em]{images/Snickerdoodle_Logo.pdf}
+}
+
+
+%
+% Headings format
+%	
+\titleformat{\section}
+	[block]
+	{\Large\bfseries\color{krtklmedblue}}
+	{}
+	{0.0em}
+	{}
+	[]
+
+\titleformat{\subsection}
+	[block]
+	{\large\normalfont\color{krtklmedblue}}
+	{\thesubsection}
+	{0.5em}
+	{}
+	[]
+
+
+
+
+%
+% Commands for table and figure links
+%
+\newcommand{\tabref}[1]{%
+	\hyperref[#1]{Table~\ref{#1}} %
+}
+
+
+\newcommand{\figref}[1]{%
+	\hyperref[#1]{Figure~\ref{#1}} %
+}
+
+\newcommand{\lstref}[1]{%
+	\hyperref[#1]{Code Listing~\ref{#1}} %
+}
+
+\newcommand{\chapref}[1]{%
+	\hyperref[#1]{Chapter~\ref{#1}} %
+}
+
+
+\let\oldhref\href
+\renewcommand{\href}[2]{
+	\oldhref{#1}{#2}\sidenote{\url{#1}}
+}
+
+%
+% Table column style definitions
+%
+\newcommand{\thickhline}{%
+    \noalign {\ifnum 0=`}\fi \hrule height 1pt
+    \futurelet \reserved@a \@xhline
+}
+
+
+\newcolumntype{"}{@{\hskip\tabcolsep\vrule width 1pt\hskip\tabcolsep}}
+
+\newcolumntype{h}{>{\begingroup \color{krtklmedblue}\bfseries}c<{\endgroup}}
+
+\newcolumntype{k}{>{\color{krtklmedblue}}l}
+
+\newcolumntype{m}{>{\begingroup \color{krtklmedblue}\ttfamily}l<{\endgroup}}
+
+\newcolumntype{t}[1]{>{\begingroup \ttfamily}p{#1}<{\endgroup}}
+
+\newcolumntype{a}{>{\columncolor{krtklverylight}}l}
+
+\newcolumntype{b}{>{\columncolor{krtklverylight}}c}
+
+\newcolumntype{s}{>{\footnotesize}c}
+
+
+%
+% Font Spec
+%
+\renewcommand\familydefault{\sfdefault}
+
+%
+% Caption Font Spec
+%
+\setcaptionfont{\footnotesize\bfseries\color{krtklmedblue}}
+
+
+%
+% Link Color Spec
+%
+\hypersetup{
+	colorlinks=true,
+	linktoc=all,	
+	linkcolor=krtklmedblue,								% color of internal links
+	urlcolor=krtklmedblue,								% color of external links	
+	citecolor=krtklmedblue								% color of citations
+}
+
+%
+% 
+%
+%\fancypagestyle{}{
+	\fancyhf{}
+	\fancyhead[RO,RE]{\thepage}
+	\fancyfoot[RO,RE]{\allcaps{snickerdoodle \@title}}
+%}
+
+%\renewcommand{\caption}[1]{ #1 }
+\let\oldcaption\caption
+\renewcommand{\caption}[2][]{%
+	\ifthenelse{\equal{#1}{}}{%
+		\oldcaption[#1]{\normalfont\color{krtkldark} #1}}
+	{\oldcaption[#1]{\normalfont\color{krtkldark} #2}}
+}
+
+
+
+%
+% Custom command for printing file paths and menu selections
+%
+\newcommand{\menpath}[2][ $\rightarrow$ ]{%
+	\begingroup
+	\bfseries\itshape
+	\def\nextitem{\def\nextitem{#1}}% Separator
+	\renewcommand*{\do}[1]{\nextitem ##1}% How to process each item
+	\docsvlist{#2}% Process list
+	\endgroup
+}
+
+
+
+\newcommand{\ppath}[2][ $\rightarrow$ ]{%
+	\begingroup
+	\ttfamily\bfseries
+	\def\nextitem{\def\nextitem{#1}}% Separator
+	\renewcommand*{\do}[1]{\nextitem ##1}% How to process each item
+	\docsvlist{#2}% Process list
+	\endgroup
+}
+
+%
+% Custom commands for abbreviations
+%
+\newcommand{\hairsp}{\hspace{1pt}} 									% Command to print a very short space
+\newcommand{\ie}{\textit{i.\hairsp{}\nolinebreak e.,}\xspace} 		% Command to print i.e.
+\newcommand{\eg}{\textit{e.\hairsp{}\nolinebreak g.,}\xspace} 		% Command to print e.g.
+
+
+
+% These commands are used to pretty-print LaTeX commands
+\newcommand{\doccmd}[1]{\texttt{\textbackslash#1}}% command name -- adds backslash automatically
+\newcommand{\docopt}[1]{\ensuremath{\langle}\textrm{\textit{#1}}\ensuremath{\rangle}}% optional command argument
+\newcommand{\docarg}[1]{\textrm{\textit{#1}}}% (required) command argument
+\newenvironment{docspec}{\begin{quote}\noindent}{\end{quote}}% command specification environment
+\newcommand{\docenv}[1]{\textsf{#1}}% environment name
+\newcommand{\docpkg}[1]{\texttt{#1}}% package name
+\newcommand{\doccls}[1]{\texttt{#1}}% document class name
+\newcommand{\docclsopt}[1]{\texttt{#1}}% document class option name
+
+
+%-----------------------------------------------------------
+% Custom title page formatting
+%-----------------------------------------------------------
+\renewcommand{\maketitle}{%
+  \newpage
+  \thispagestyle{plain}
+  	\begin{fullwidth}
+      \includegraphics{../Common/Images/Snickerdoodle_Logo.pdf}
+    \end{fullwidth}
+  
+	\begingroup
+		%\setlength{\parindent}{0em}
+		%\setlength{\parskip}{2em}
+		%\setlength{\baselineskip}{4em}
+		\setlength{\parindent}{0em}
+		\setlength{\baselineskip}{2em}
+		\setlength{\parskip}{2em}
+		\begingroup
+      	\par{\LARGE\allcaps{\@title}}
+      	\ifthenelse{\equal{\@author}{}}{}{\par{\Large\allcaps{\@author}}}
+	    \ifthenelse{\equal{\@date}{}}{}{\par{\Large\allcaps{\@date}}}
+    	\endgroup
+  	\par
+  \endgroup
+}
+
+
+
+
+
+
+

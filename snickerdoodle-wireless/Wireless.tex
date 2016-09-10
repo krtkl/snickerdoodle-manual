@@ -1,0 +1,566 @@
+\section{Introduction}
+
+\margininfonote{Portions of this document have been adapted from the TI WL18xx documentation found at \url{http://processors.wiki.ti.com/index.php/Connect_to_Secure_AP_using_WPA_Supplicant}}
+
+This document details the process and methods used to connect snickerdoodle to a local wireless network to establish network and internet connectivity. The files and commands outlined in this document are found accessed directly from a booted snickerdoodle using a terminal interface established through connection with the snickerdoodle serial port located at J1 or J2. \\
+
+\noindent
+The following information contains details on how to connect to a variety of network security modes using a combination of automated and manual processes. 
+
+
+\section{WPA Supplicant (\texttt{wpa\_supplicant})}
+The \texttt{wpa\_supplicant} is a program that initializes and establishes network connectivity based on a set of configurations specified by a combination of a configuration file and (optionally) command line input. 
+
+
+\subsection{\texttt{wpa\_supplicant.conf}}
+Network configuration can be stored and additionally recalled automatically when booting snickerdoodle to connect to known and trusted networks. These configurations are typically stored in \texttt{/etc/wpa\_supplicant.conf}\sidenote{Additional information on the structure of \texttt{wpa\_supplicant.conf} can be found at \url{http://linux.die.net/man/5/wpa_supplicant.conf}}. Multiple network configurations can be stored in a single \texttt{wpa\_supplicant.conf}. \\
+
+\begin{fullwidth}
+\begin{lstlisting}[style=text]
+root@snickerdoodle:~$ wpa_supplicant -d -Dnl80211 -c/etc/wpa_supplicant.conf -iwlan0 -B
+\end{lstlisting}
+\end{fullwidth}
+
+\subsection{Configuration Structure}
+
+
+\noindent
+An example network configuration for an open (unsecured) network can be found below. The first three lines of the file specify the configuration for the front-end (\texttt{wpa\_cli}). Additional configuration examples for various network security types can be found at \hyperref[sec:wpaconftypes]{the end of this document}. \\
+
+\begin{lstlisting}[style=text]
+ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0					
+update_config=1
+
+network={
+        auth_alg=OPEN
+        key_mgmt=NONE
+        ssid="my_Network"
+        mode=0
+}
+\end{lstlisting}
+
+
+~\\
+\noindent
+\texttt{wpa\_supplicant} is daemon and therefore only one instance of it may be run on a snickerdoodle, all other modifications and configuration of settings must be made with the frontend application, \texttt{wpa\_cli}.
+
+\section{WPA Command Line Interface (\texttt{wpa\_cli})}
+
+wpa\_cli is a text-based frontend program for interacting with wpa\_supplicant. It is used to query current status,
+change configuration, trigger events, and request interactive user input. \\
+
+\begin{lstlisting}[style=text]
+wpa_cli -i interface [-hv] [command ...]
+\end{lstlisting}
+
+\begin{description}
+	\item[\texttt{-h}] prints help information
+	\item[\texttt{-v}] verbose output
+	\item[\texttt{-i interface}] interface name, typically wlan0
+\end{description}
+
+
+\noindent
+In all commands used in the examples the first argument is the interface that is being configured, preceded by the \texttt{-i} flag (\texttt{-i wlan0}).
+
+
+%
+% Organize and format this "Commands" section
+% Credit the original wiki/site from TI for this information
+%
+\section{\texttt{wpa\_cli} Commands}
+Setting the attributes of a network is done through a set of commands that are specified as arguments to \Verb|wpa_cli|. Many of these commands require additional arguments to specify the attributes that are being set. \\
+
+
+\margincautionnote{Pay careful attention to the order and number of arguments used for each command. Some commands (especially the \hyperref[sub:setnetwork]{\texttt{set\_network}} command) utilize a variable number of arguments to set various network parameters.}
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries disconnect} - Puts the interface into a disconnected state and waits for a reassociate command before connecting.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 disconnect
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries add\_network} - Adds and assigns an index number to a new network for the specified interface. All necessary configuration of the newly added network is done with \hyperref[sub:setnetwork]{\texttt{set\_network}} command.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 add_network
+	\end{lstlisting}
+
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries select\_network} - Selects network with the specified succeeding index argument and disables others.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 select_network 0
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries enable\_network} - Enables network with specified succeeding index argument.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 enable_network 0
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries reassociate} - Forces reassociation of the currently selected network.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 reassociate
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries status} - Gets current WPA/EAPOL/EAP status of the currently selected network.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 status
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries list\_networks} - Lists configured networks for the specified interface.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 list_networks
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries remove\_network} - Removes network with the specified succeeding SSID argument from the list of configured networks.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 remove_network '"Bandipur"'
+	\end{lstlisting}
+
+
+\subsection{\texttt{set\_network} Command}
+\label{sub:setnetwork}
+The following set of commands are used with the \Verb|set_network| command to specify network attributes. All of the following commands require the argument following "\Verb|set_network|" to be the network index, followed by any parameter commands and arguments. \\
+
+\margininfonote{If an error is made while setting a network parameter, simply re-input the corresponding \texttt{set\_network} command with the correct arguments to override the parameter setting. To un-set parameters (for different configuration types) the network must be removed from the list.} 
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries auth\_alg} - Configures network authentication algorithm. Typically, the complimentary argument is \texttt{OPEN}.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 set_network 0 auth_alg OPEN
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries key\_mgmt} - Sets authenticated key management protocol for the network. Possible protocols are \texttt{NONE}, \texttt{WPA-EAP} or \texttt{WPA-PSK}.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 set_network 0 key_mgmt WPA-EAP
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries psk} - Sets WPA passphrase or pre-shared key (PSK) to be used with the network.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 set_network 0 psk '"12345678"'
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries wep\_key0} - Sets WEP key passphrase to be used by the network.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 set_network 0 wep_key0 ABCdef1234567890abcDEF3333
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries pairwise} - Sets CCMP algorithm as pairwise (unicast) cipher for WPA.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 set_network 0 pairwise CCMP
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries group} - Sets CCMP algorithm as group (broadcast/multicast) cipher for WPA.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 set_network 0 group CCMP
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries proto} - Sets security protocol as WPA2.
+
+    \begin{lstlisting}[style=framelesstext]
+   	wpa_cli -i wlan0 set_network 0 proto WPA2
+    \end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries eap} - Sets PEAP as extensible authentication protocol's (EAP) method.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 set_network 0 eap PEAP
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries identity} - Sets identity string for EAP.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 set_network 0 identity '"test"'
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries password} - Sets password string for EAP.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 set_network 0 password '"test"'
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries phase1} - Sets outer authentication method version as PEAPv0.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 set_network 0 phase1 '"peapver=0"'
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries phase2} - Sets inner authentication method as EAP-MSCHAPv2.
+
+	\begin{lstlisting}[style=framelesstext]
+	wpa_cli -i wlan0 set_network 0 phase2 '"MSCHAPV2"'
+	\end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries mode} - Sets IEEE 802.11 operation mode as infrastructure (Managed) mode, i.e., associate with an AP.
+
+    \begin{lstlisting}[style=framelesstext]
+    wpa_cli -i wlan0 set_network 0 mode 0
+    \end{lstlisting}
+
+
+\noindent
+\hangpara{2em}{1} \texttt{\bfseries ssid} - Sets network service set identifier (SSID) of the specified network index. 
+
+    \begin{lstlisting}[style=framelesstext]
+    wpa_cli -i wlan0 set_network 0 ssid '"my_Network"'
+    \end{lstlisting}
+
+
+\section{\texttt{wpa\_cli} Invocation}
+\label{sec:wpacliinvocation}
+
+Configuring wireless networks using \texttt{wpa\_cli} is an excellent way to test network connectivity and settings before applying those configurations to automatically establish connections. When using \texttt{wpa\_cli}, it is important to invoke \texttt{wpa\_supplicant} exactly ONCE before attempting to use any \texttt{wpa\_cli} commands. \texttt{wpa\_supplicant} should be used with the \texttt{-B} flag to daemonize the supplicant. An example call to \texttt{wpa\_supplicant}: \\
+
+\begin{lstlisting}[style=text]
+wpa_supplicant -d -D nl80211 -c /etc/wpa_supplicant.conf -iwlan0 -B
+\end{lstlisting}
+
+~\\
+\noindent
+This call uses the \texttt{nl80211} driver (specified by \texttt{-D}) and a configuration file specified by \texttt{-c}. The \texttt{-d} flag is used to output verbose debugging messages.\\
+
+\subsection{Removing Existing Networks}
+Removing all of the networks from the network list can be done using a combination of invocations of \texttt{wpa\_cli}. This can be useful when wanting to work with only one network or testing network configurations manually. An example script/command which will remove all of the networks currently stored in the \texttt{wpa\_cli} list is as follows: \\
+
+\begin{lstlisting}[style=text]
+for i in `wpa_cli -iwlan0 list_networks | grep ^[0-9] | cut -f1`; do wpa_cli -iwlan0 remove_network $i; done
+\end{lstlisting}
+
+~\\
+\noindent
+After removing all networks, a single network can be added by using the \texttt{add\_network} command. \\
+
+\begin{lstlisting}
+wpa_cli -i wlan0 add_network
+\end{lstlisting}
+
+
+\subsection{Setting Network Parameters}
+After adding a network, it can be configured using a '\texttt{0}' index for any \texttt{set\_network} commands that follow. Configuring the network parameters is done through a series of \texttt{set\_network} commands that specify the characteristics of the network based on it's authentication/security type and the credentials specific to the network. Below is an example of an unsecured (open) network. The \texttt{set\_network} commands for other network configuration types can be found \hyperref[sec:wpacliconfigs]{at the end of this document}\\
+
+\begin{lstlisting}[style=text]
+wpa_cli -i wlan0 set_network 0 auth_alg OPEN
+wpa_cli -i wlan0 set_network 0 key_mgmt NONE
+wpa_cli -i wlan0 set_network 0 mode 0
+wpa_cli -i wlan0 set_network 0 ssid '"my_Network"'
+\end{lstlisting}
+
+
+~\\
+After configuring the network using a series of \texttt{set\_network} commands, the network can be enabled using the following series of commands: \\
+
+\begin{lstlisting}
+wpa_cli -i wlan0 select_network 0
+wpa_cli -i wlan0 enable_network 0
+wpa_cli -i wlan0 reassociate
+\end{lstlisting}
+
+~\\
+\noindent
+To verify connection status with the WPA supplicant, the \texttt{status} command can be used as shown below: \\
+
+\begin{lstlisting}
+root@snickerdoodle:~$ wpa_cli -i wlan0 status
+bssid=ff:ee:dd:cc:bb:aa
+ssid=my_Network
+id=0
+mode=station
+pairwise_cipher=CCMP
+group_cipher=CCMP
+key_mgmt=WPA2-PSK
+wpa_state=COMPLETED
+p2p_device_address=12:34:56:78:90:ab
+address=cd:ef:11:22:33:44
+\end{lstlisting}
+
+
+~\\
+\noindent
+Additional information about the wireless connection can be viewed using the \href{http://linux.die.net/man/8/iw}{\texttt{iw}} command. \\
+\begin{lstlisting}[style=text]
+root@snickerdoodle:~$ iw wlan0 link
+Connected to ff:ee:dd:cc:bb:aa (on wlan0)
+        SSID: my_Network
+        freq: 2462
+        RX: 216135 bytes (735 packets)
+        TX: 1345 bytes (13 packets)
+        signal: -39 dBm
+        tx bitrate: 72.2 MBit/s MCS 7 short GI
+
+        bss flags:      short-preamble short-slot-time
+        dtim period:    1
+        beacon int:     100
+\end{lstlisting}
+
+~\\
+\noindent
+For networks where a DHCP server is already running and administering IP addresses to clients, the \href{http://linux.die.net/man/8/dhclient}{\texttt{dhclient}} command can be used to obtain an IP address and finalize connection to the network. Using \href{http://linux.die.net/man/8/ifconfig}{\texttt{ifconfig}} will confirm the snickerdoodle IP address.
+                                                                
+\begin{lstlisting}
+root@snickerdoodle:~$ dhclient wlan0
+root@snickerdoodle:~$ ifconfig
+wlan0     Link encap:Ethernet  HWaddr 12:34:56:78:90:ab  
+          inet addr:10.0.111.112  Bcast:10.0.111.255  Mask:255.255.255.0
+          inet6 addr: fe80::36b1:f7ff:fedf:6f93/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:1130 errors:0 dropped:1 overruns:0 frame:0
+          TX packets:15 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:305537 (305.5 KB)  TX bytes:2134 (2.1 KB)
+\end{lstlisting}
+
+
+\section{\texttt{wpa\_supplicant.conf} Network Configurations}
+\label{sec:wpaconftypes}
+This section contains a set of example network configurations for \texttt{wpa\_supplicant.conf} with various security types. Common network security types have been chosen to be included here, however, they are not the only security schemes that are possible. The \href{http://linux.die.net/man/5/wpa_supplicant.conf}{\texttt{wpa\_supplicant} man page} contains some additional examples and helpful resources for further reading.
+
+\subsection{WPA}
+\begin{lstlisting}[style=text]
+network={
+        auth_alg=OPEN
+        key_mgmt=WPA-PSK
+        psk="1234abcdWXYZ"
+        ssid="MYNETWORK"
+        mode=0
+}
+\end{lstlisting}
+
+
+\subsection{WPA2}
+\begin{lstlisting}[style=text]
+network={
+        auth_alg=OPEN
+        key_mgmt=WPA-PSK
+        psk '"1234abcdWXYX"
+        ssid="my_Network"
+        proto=RSN
+        mode=0
+}
+\end{lstlisting}
+
+
+\subsection{WEP 40 Open}
+\begin{lstlisting}[style=text]
+network={
+        auth_alg=OPEN
+        wep_key0=1234567890
+        key_mgmt=NONE
+        ssid="my_Network"
+        mode=0
+}
+\end{lstlisting}
+
+\newpage
+\subsection{WEP 128 Open}
+\begin{lstlisting}[style=text]
+network={
+        auth_alg=OPEN
+        wep_key0=1234abcdWXYZ5678efghSTUV90
+        key_mgmt=NONE
+        ssid="my_Network"
+        mode=0
+}
+\end{lstlisting}
+
+\subsection{WPA PSK}
+\begin{lstlisting}[style=text]
+network={
+        auth_alg=OPEN
+        key_mgmt=WPA-PSK
+        psk="1234abcdWXYZ"
+        pairwise=CCMP TKIP
+        group=CCMP TKIP
+        ssid="my_Network"
+        mode=0
+}
+\end{lstlisting}
+
+
+
+\section{\texttt{wpa\_cli} Network Configurations}
+\label{sec:wpacliconfigs}
+This section contains sets of commands used to configure network settings using \texttt{wpa\_cli}. Each of the commands are variants of the \hyperref[sub:setnetwork]{\texttt{set\_network}} command and should be preceded by commands required to remove or add networks to the network list and followed by commands used to check the status of and finalize the connection, as described in the previous sections.
+
+\subsection{WPA}
+\begin{lstlisting}[style=text]
+wpa_cli -i wlan0 set_network 0 auth_alg OPEN
+wpa_cli -i wlan0 set_network 0 key_mgmt WPA-PSK
+wpa_cli -i wlan0 set_network 0 psk '"12345678"'
+wpa_cli -i wlan0 set_network 0 mode 0
+wpa_cli -i wlan0 set_network 0 ssid '"my_Network"'
+\end{lstlisting}
+
+\newpage
+\subsection{WPA2}
+\begin{lstlisting}[style=text]
+wpa_cli -i wlan0 set_network 0 auth_alg OPEN
+wpa_cli -i wlan0 set_network 0 key_mgmt WPA-PSK
+wpa_cli -i wlan0 set_network 0 psk '"12345678"'
+wpa_cli -i wlan0 set_network 0 proto RSN
+wpa_cli -i wlan0 set_network 0 mode 0
+wpa_cli -i wlan0 set_network 0 ssid '"my_Network"'
+\end{lstlisting}
+
+\subsection{WPA/WPA2 PSK}
+\begin{lstlisting}[style=text]
+wpa_cli -i wlan0 set_network 0 auth_alg OPEN
+wpa_cli -i wlan0 set_network 0 key_mgmt WPA-PSK
+wpa_cli -i wlan0 set_network 0 psk '"12345678"'
+wpa_cli -i wlan0 set_network 0 pairwise CCMP TKIP
+wpa_cli -i wlan0 set_network 0 group CCMP TKIP
+wpa_cli -i wlan0 set_network 0 mode 0
+wpa_cli -i wlan0 set_network 0 ssid '"my_Network"'
+\end{lstlisting}
+
+\subsection{WEP 40 Open}
+\begin{lstlisting}[style=text]
+wpa_cli -i wlan0 set_network 0 auth_alg OPEN
+wpa_cli -i wlan0 set_network 0 wep_key0 1234567890
+wpa_cli -i wlan0 set_network 0 key_mgmt NONE
+wpa_cli -i wlan0 set_network 0 mode 0
+wpa_cli -i wlan0 set_network 0 ssid '"my_Network"'
+\end{lstlisting}
+
+\subsection{WEP 128 Open}
+\begin{lstlisting}[style=text]
+wpa_cli -i wlan0 set_network 0 auth_alg OPEN
+wpa_cli -i wlan0 set_network 0 wep_key0 1234abcdWXYZ5678efghSTUV90
+wpa_cli -i wlan0 set_network 0 key_mgmt NONE
+wpa_cli -i wlan0 set_network 0 mode 0
+wpa_cli -i wlan0 set_network 0 ssid '"my_Network"'
+\end{lstlisting}
+
+\newpage
+\subsection{WPA Enterprise (EAP TLS)}
+\begin{lstlisting}[style=text]
+wpa_cli -i wlan0 set_network 0 auth_alg OPEN
+wpa_cli -i wlan0 set_network 0 key_mgmt WPA-EAP
+wpa_cli -i wlan0 set_network 0 pairwise TKIP
+wpa_cli -i wlan0 set_network 0 group TKIP
+wpa_cli -i wlan0 set_network 0 proto WPA
+wpa_cli -i wlan0 set_network 0 eap TLS
+wpa_cli -i wlan0 set_network 0 identity '"test"'
+wpa_cli -i wlan0 set_network 0 client_cert '"/etc/certs/cert.pem"'
+wpa_cli -i wlan0 set_network 0 private_key '"/etc/certs/key.pem"'
+wpa_cli -i wlan0 set_network 0 private_key_passwd '"test"'
+wpa_cli -i wlan0 set_network 0 mode 0
+wpa_cli -i wlan0 set_network 0 ssid '"my_Network"'
+\end{lstlisting}
+
+\subsection{WPA Enterprise (EAP PEAP0)}
+\begin{lstlisting}[style=text]
+wpa_cli -i wlan0 set_network 0 auth_alg OPEN
+wpa_cli -i wlan0 set_network 0 key_mgmt WPA-EAP
+wpa_cli -i wlan0 set_network 0 pairwise TKIP
+wpa_cli -i wlan0 set_network 0 group TKIP
+wpa_cli -i wlan0 set_network 0 proto WPA
+wpa_cli -i wlan0 set_network 0 eap PEAP
+wpa_cli -i wlan0 set_network 0 identity "test"
+wpa_cli -i wlan0 set_network 0 password "test"
+wpa_cli -i wlan0 set_network 0 phase1 "peapver=0"
+wpa_cli -i wlan0 set_network 0 phase2 "MSCHAPV2"
+wpa_cli -i wlan0 set_network 0 mode 0
+wpa_cli -i wlan0 set_network 0 ssid '"my_Network"'
+\end{lstlisting}
+
+\subsection{WPA2 Enterprise (EAP TLS)}
+\begin{lstlisting}[style=text]
+wpa_cli -i wlan0 set_network 0 proactive_key_caching 1
+wpa_cli -i wlan0 set_network 0 auth_alg OPEN
+wpa_cli -i wlan0 set_network 0 key_mgmt WPA-EAP
+wpa_cli -i wlan0 set_network 0 pairwise CCMP
+wpa_cli -i wlan0 set_network 0 group CCMP
+wpa_cli -i wlan0 set_network 0 proto WPA2
+wpa_cli -i wlan0 set_network 0 eap TLS
+wpa_cli -i wlan0 set_network 0 identity '"test"'
+wpa_cli -i wlan0 set_network 0 client_cert '"/etc/certs/cert.pem"'
+wpa_cli -i wlan0 set_network 0 private_key '"/etc/certs/key.pem"'
+wpa_cli -i wlan0 set_network 0 private_key_passwd '"test"'
+wpa_cli -i wlan0 set_network 0 mode 0
+wpa_cli -i wlan0 set_network 0 ssid '"my_Network"'
+\end{lstlisting}
+
+\subsection{WPA2 Enterprise (EAP PEAP0)}
+\begin{lstlisting}[style=text]
+wpa_cli -i wlan0 set_network 0 auth_alg OPEN
+wpa_cli -i wlan0 set_network 0 key_mgmt WPA-EAP
+wpa_cli -i wlan0 set_network 0 pairwise CCMP
+wpa_cli -i wlan0 set_network 0 group CCMP
+wpa_cli -i wlan0 set_network 0 proto WPA2
+wpa_cli -i wlan0 set_network 0 eap PEAP
+wpa_cli -i wlan0 set_network 0 identity '"test"'
+wpa_cli -i wlan0 set_network 0 password '"test"'
+wpa_cli -i wlan0 set_network 0 phase1 '"peapver=0"'
+wpa_cli -i wlan0 set_network 0 phase2 '"MSCHAPV2"'
+wpa_cli -i wlan0 set_network 0 mode 0
+wpa_cli -i wlan0 set_network 0 ssid '"my_Network"'
+\end{lstlisting}
+
+\subsection{WPA/WPA2 Enterprise (EAP TLS)}
+\begin{lstlisting}[style=text]
+wpa_cli -i wlan0 set_network 0 auth_alg OPEN
+wpa_cli -i wlan0 set_network 0 key_mgmt WPA-EAP
+wpa_cli -i wlan0 set_network 0 proto WPA2
+wpa_cli -i wlan0 set_network 0 eap TLS
+wpa_cli -i wlan0 set_network 0 identity '"test"'
+wpa_cli -i wlan0 set_network 0 client_cert '"/etc/certs/cert.pem"'
+wpa_cli -i wlan0 set_network 0 private_key '"/etc/certs/key.pem"'
+wpa_cli -i wlan0 set_network 0 private_key_passwd '"test"'
+wpa_cli -i wlan0 set_network 0 mode 0
+wpa_cli -i wlan0 set_network 0 ssid '"my_Network"'
+\end{lstlisting}
+
+
+
