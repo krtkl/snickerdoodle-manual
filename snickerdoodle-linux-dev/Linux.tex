@@ -58,7 +58,7 @@ export PATH=$PATH:$(pwd)
 
 \subsection{Build U-Boot and \texttt{mkimage}}
 
-After the device tree compiler has been built, U-Boot can be built from the it's top-level directory by invoking the following command: \\
+After the device tree compiler has been built, U-Boot can be built from its top-level directory by invoking the following command: \\
 
 \begin{lstlisting}[style=text]
 make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- 
@@ -66,7 +66,7 @@ make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi-
 
 ~\\
 \noindent
-Just as with the device tree compiler, for \texttt{mkimage} to be callable from \texttt{make} during the kernel build process, it's parent directory must be added to \texttt{\$PATH}. The \texttt{mkimage} executable is built in the \texttt{tools} directory within the U-Boot source directory. By navigating to \textit{\bfseries snickerdoodle-u-boot $\rightarrow$ tools}, the \texttt{\$PATH} variable can be appended with the location of the \texttt{mkimage} utility. \\
+Just as with the device tree compiler, for \texttt{mkimage} to be callable from \texttt{make} during the kernel build process, its parent directory must be added to \texttt{\$PATH}. The \texttt{mkimage} executable is built in the \texttt{tools} directory within the U-Boot source directory. By navigating to \textit{\bfseries snickerdoodle-u-boot $\rightarrow$ tools}, the \texttt{\$PATH} variable can be appended with the location of the \texttt{mkimage} utility. \\
 
 \begin{lstlisting}
 cd tools
