@@ -25,11 +25,11 @@ root@snickerdoodle:~$ wpa_supplicant -d -Dnl80211 -c/etc/wpa_supplicant.conf -iw
 
 
 \noindent
-An example network configuration for an open (unsecured) network can be found below. The first three lines of the file specify the configuration for the front-end (\texttt{wpa\_cli}). Additional configuration examples for various network security types can be found at \hyperref[sec:wpaconftypes]{the end of this document}. \\
+An example network configuration for an open (unsecured) network can be found below. The first three lines of the file specify the configuration for the front-end (\texttt{wpa\_cli}). Additional configuration examples for various network security types can be found at \hyperref[sec:wpaconftypes]{the end of this document}.
 
 \begin{lstlisting}[style=text]
 ctrl_interface=/var/run/wpa_supplicant
-ctrl_interface_group=0					
+ctrl_interface_group=0
 update_config=1
 
 network={
@@ -39,7 +39,6 @@ network={
         mode=0
 }
 \end{lstlisting}
-
 
 ~\\
 \noindent
@@ -153,7 +152,6 @@ The following set of commands are used with the \Verb|set_network| command to sp
 	wpa_cli -i wlan0 set_network 0 auth_alg OPEN
 	\end{lstlisting}
 
-
 \noindent
 \hangpara{2em}{1} \texttt{\bfseries key\_mgmt} - Sets authenticated key management protocol for the network. Possible protocols are \texttt{NONE}, \texttt{WPA-EAP} or \texttt{WPA-PSK}.
 
@@ -161,14 +159,12 @@ The following set of commands are used with the \Verb|set_network| command to sp
 	wpa_cli -i wlan0 set_network 0 key_mgmt WPA-EAP
 	\end{lstlisting}
 
-
 \noindent
 \hangpara{2em}{1} \texttt{\bfseries psk} - Sets WPA passphrase or pre-shared key (PSK) to be used with the network.
 
 	\begin{lstlisting}[style=framelesstext]
 	wpa_cli -i wlan0 set_network 0 psk '"12345678"'
 	\end{lstlisting}
-
 
 \noindent
 \hangpara{2em}{1} \texttt{\bfseries wep\_key0} - Sets WEP key passphrase to be used by the network.
@@ -366,6 +362,7 @@ wlan0     Link encap:Ethernet  HWaddr 12:34:56:78:90:ab
 \label{sec:wpaconftypes}
 This section contains a set of example network configurations for \texttt{wpa\_supplicant.conf} with various security types. Common network security types have been chosen to be included here, however, they are not the only security schemes that are possible. The \href{http://linux.die.net/man/5/wpa_supplicant.conf}{\texttt{wpa\_supplicant} man page} contains some additional examples and helpful resources for further reading.
 
+\newpage
 \subsection{WPA}
 \begin{lstlisting}[style=text]
 network={
