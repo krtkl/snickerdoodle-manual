@@ -187,17 +187,17 @@ $ umount /dev/sdb1
 \end{lstlisting}
 
 
-Once the SD card has been located, we can partition it for the Linux system (\textit{BOOT} partition) and root filesystem (\textit{ROOTFS} partition) using \href{http://linux.die.net/man/8/fdisk}{\cmdstr{fdisk}}. Additional information on \cmdstr{fdisk} is available from the \href{http://tldp.org/HOWTO/Partition/fdisk_partitioning.html}{Linux Documentation Project}. \cmdstr{fdisk} must be run with root permissions (\texttt{sudo}) using the disk parent as the argument (do not use the parition number in the argument). 
+Once the SD card has been located, we can partition it for the Linux system (\textit{BOOT} partition) and root filesystem (\textit{ROOTFS} partition) using \href{http://linux.die.net/man/8/fdisk}{\cmdstr{fdisk}}. Additional information on \cmdstr{fdisk} is available from the \href{http://tldp.org/HOWTO/Partition/fdisk_partitioning.html}{Linux Documentation Project}. \cmdstr{fdisk} must be run with root permissions (\texttt{sudo}) using the disk parent as the argument (do not use the partition number in the argument). 
 
 
 \begin{lstlisting}[style=text]
-$ fdisk /dev/sdb
+$ sudo fdisk /dev/sdb
 \end{lstlisting}
 
 
 \margincautionnote{Do NOT include any partition number (in the example case '1') when running \cmdstr{fdisk} on the SD card. '\texttt{/dev/sdb}' NOT '\texttt{/dev/sdb1}'}
 
-From within the \texttt{fdisk} interface, we can view the parition table at any time using the 'p' command. In this example, an 8GB SD card with a single FAT32 partition is being used and will be re-partitioned for snickerdoodle.
+From within the \texttt{fdisk} interface, we can view the partition table at any time using the 'p' command. In this example, an 8GB SD card with a single FAT32 partition is being used and will be re-partitioned for snickerdoodle.
 
 
 \begin{lstlisting}[style=text]
@@ -308,7 +308,7 @@ With a partitioned SD card, the partitions need to be formatted with the necessa
 
 
 \begin{lstlisting}
-$ mkfs.vfat -n BOOT /dev/sdb1
+$ sudo mkfs.vfat -n BOOT /dev/sdb1
 \end{lstlisting}
 
 
@@ -390,10 +390,12 @@ The \textit{BOOT} components can be installed onto the SD card using the \texttt
 
 
 \begin{lstlisting}
-$ cp BOOT.bin /media/user/BOOT
-$ cp uEnv.txt /media/user/BOOT
-$ cp devicetree.dtb /media/user/BOOT
-$ cp uImage /media/user/BOOT
+$ cd snickerdoodle-linux-prebuilt/snickerdoodle
+$ cd boot_images
+$ cp BOOT.bin /media/$USER/BOOT
+$ cp uEnv.txt /media/$USER/BOOT
+$ cp devicetree.dtb /media/$USER/BOOT
+$ cp uImage /media/$USER/BOOT
 \end{lstlisting}
 
 
@@ -413,7 +415,7 @@ The root filesystem can be extracted directly into the \textit{ROOTFS} partition
 
 \begin{fullwidth}
 \begin{lstlisting}
-$ tar -C /media/user/ROOTFS -xvzf snickerdoodle-ubuntu-14.04.tar.gz
+$ tar -C /media/$USER/ROOTFS -xvzf snickerdoodle-ubuntu-14.04.tar.gz
 \end{lstlisting}
 \end{fullwidth}
 
@@ -429,6 +431,27 @@ $ eject /dev/sdb
 \end{lstlisting}
 
 
+~\\
+\noindent
+Now that the microSD card has been partitioned, formatted and populated with the Linux files, it is ready to be installed onto snickerdoodle and booted. Install the microSD card into the card cage (J6) and connect power on either the micro USB connector (J1) or the power pins on J2. The familiar Ubuntu boot console should start and you will have access to a terminal to begin configuration and development of snickerdoodle. 
+
+\begin{figure}
+	\centering
+	\includegraphics{images/SD_microSD.pdf}
+	\caption{snickerdoodle SD Card Connector with Installed microSD Card}
+\end{figure}
 
 
+\begin{fullwidth}
+\begin{lstlisting}[%
+  backgroundcolor=\color{black},
+  basicstyle={\small\ttfamily\color{green}}
+  ]
+Welcome to Ubuntu 14.04 (GNU/Linux 3.14.0-xilinx-dirty armv7l)
+
+ * Documentation:  http://www.ubuntu.com
+root@snickerdoodle:~/workspace# python hello_world.py 
+Congratulations! You've run your first python script on snickerdoodle!
+\end{lstlisting}
+\end{fullwidth}
 
