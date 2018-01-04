@@ -35,17 +35,17 @@ $ umount /dev/sdb1
 
 ~\\
 \noindent
-Once the SD card has been located, we can partition it for the Linux system (\textit{BOOT} partition) and root filesystem (\textit{ROOTFS} partition) using \texttt{fdisk}\sidenote{Additional information on \texttt{fdisk} can be found at: \url{http://tldp.org/HOWTO/Partition/fdisk_partitioning.html}}. \texttt{fdisk} must be run with root permissions (\texttt{sudo}) using the disk parent as the argument (do not use the parition number in the argument).\\ 
+Once the SD card has been located, we can partition it for the Linux system (\textit{BOOT} partition) and root filesystem (\textit{ROOTFS} partition) using \texttt{fdisk}\sidenote{Additional information on \texttt{fdisk} can be found at: \url{http://tldp.org/HOWTO/Partition/fdisk_partitioning.html}}. \texttt{fdisk} must be run with root permissions (\texttt{sudo}) using the disk parent as the argument (do not use the partition number in the argument).\\ 
 
 \margincautionnote{Do NOT include any partition number (in the example case '1') when running \texttt{fdisk} on the SD card. '\texttt{/dev/sdb}' NOT '\texttt{/dev/sdb1}'}
 
 \begin{lstlisting}[language=bash]
-$ fdisk /dev/sdb
+$ sudo fdisk /dev/sdb
 \end{lstlisting}
 
 ~\\
 \noindent
-From within the \texttt{fdisk} interface, we can view the parition table at any time using the 'p' command. In this example, an 8GB SD card with a single FAT32 partition is being used and will be re-partitioned for snickerdoodle. \\
+From within the \texttt{fdisk} interface, we can view the partition table at any time using the 'p' command. In this example, an 8GB SD card with a single FAT32 partition is being used and will be re-partitioned for snickerdoodle. \\
 
 \begin{lstlisting}[style=text]
 Command (m for help): (*@\bfseries\color{red}{p}@*)
@@ -111,7 +111,7 @@ Using default value 15564799
 
 ~\\
 \noindent
-Before writing the parition table, you should verify the partition layout by printing it with the 'p' command. In this example, an 8GB SD card has been partitioned with a 128MB FAT32 \textit{BOOT} partition and the rest allocated for a Linux \textit{ROOTFS} partition. \\
+Before writing the partition table, you should verify the partition layout by printing it with the 'p' command. In this example, an 8GB SD card has been partitioned with a 128MB FAT32 \textit{BOOT} partition and the rest allocated for a Linux \textit{ROOTFS} partition. \\
 
 \begin{lstlisting}[style=text]
 Command (m for help): (*@\bfseries\color{red}{p}@*)
@@ -143,7 +143,7 @@ Syncing disks.
 With a partitioned SD card, the partitions need to be formatted with the necessary filesystem type. For the \textit{BOOT} partition, the filesystem type is \textbf{VFAT}. Formatting the \textit{BOOT} partition can be done using the \texttt{mkfs.vfat}\sidenote{Additional information on \texttt{mkfs/mke2fs} and it's front end tools can be found at: \url{http://www.tldp.org/HOWTO/Partition/formatting.html}}. To format a FAT32 filesystem on \texttt{/dev/sdb1} with a 'BOOT' disk label, the following command can be used: \\
 
 \begin{lstlisting}
-$ mkfs.vfat -n BOOT /dev/sdb1
+$ sudo mkfs.vfat -n BOOT /dev/sdb1
 \end{lstlisting}
 
 ~\\
@@ -159,7 +159,7 @@ $ mke2fs -b 1024 -t ext4 -L ROOTFS /dev/sdb2
 
 ~\\
 \noindent
-If the formatting is successful, the following output with be written to the console (writing superblocks and filesystem accounting information can take some time depending on the size and speed of the SD card): \\
+If the formatting is successful, the following output will be written to the console (writing superblocks and filesystem accounting information can take some time depending on the size and speed of the SD card): \\
 
 \begin{lstlisting}[style=text]
 mke2fs 1.42.9 (4-Feb-2014)
@@ -223,6 +223,8 @@ After downloading the SD card components
 The \textit{BOOT} components can be installed onto the SD card using the \texttt{cp} command, starting with \texttt{BOOT.bin}. In this example, the files are copied to the \textit{BOOT} partition that has been mounted at \texttt{/media/user/BOOT}. As stated above, the \texttt{mount} command can be used to \hyperref[sub:locatesd]{locate the mount point of the SD card partitions}. \\
 
 \begin{lstlisting}
+$ cd snickerdoodle-linux-prebuilt/snickerdoodle
+$ cd boot_images
 $ cp BOOT.bin /media/$USER/BOOT
 $ cp uEnv.txt /media/$USER/BOOT
 $ cp devicetree.dtb /media/$USER/BOOT
@@ -242,7 +244,7 @@ $ sync
 The root filesystem can be extracted directly into the \textit{ROOTFS} partition using the '-C' argument when extracting the archive contents. An Ubuntu 14.04 filesystem can be downloaded from \url{http://krtkl.com/downloads/}. In this example, the \textit{ROOTFS} partition is mounted at \texttt{/media/user/ROOTFS}, which should be checked before attempting to extract the root filesystem. The root filesystem contains a lot of large packages (ROS, python, etc.) and may take several minutes to complete the process of writing to the SD card. \\
 
 \begin{lstlisting}
-$ tar -C /media/user/ROOTFS -xvzf snickerdoodle-ubuntu-14.04.tar.gz
+$ tar -C /media/$USER/ROOTFS -xvzf snickerdoodle-ubuntu-14.04.tar.gz
 \end{lstlisting}
 
 
