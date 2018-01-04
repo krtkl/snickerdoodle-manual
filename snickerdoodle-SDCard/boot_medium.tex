@@ -13,7 +13,7 @@
 % -----------------------------------------------------
 \section{Load microSD Card Using Windows}
 
-Because Windows does not support reading/writing of Linux filesystems (ext2, etc.), the partitioning and formatting of the microSD card must be done with disk images. The disk image contains all of the information required to define the partition scheme, disk format and file system contents. This includes the boot partition components (\file{BOOT.bin}, \file{devicetree.dtb}, etc.) as well as the root filesystem partition and it's components.
+Because Windows does not support reading/writing of Linux filesystems (ext2, etc.), the partitioning and formatting of the microSD card must be done with disk images. The disk image contains all of the information required to define the partition scheme, disk format and file system contents. This includes the boot partition components (\file{BOOT.bin}, \file{devicetree.dtb}, etc.) as well as the root filesystem partition and its components.
 
 
 %%%--------- Format the microSD Card ----------
@@ -100,7 +100,7 @@ The SD Association supports an SD card formatting utility for OS X machines. The
 %%%--------- Load the microSD Card Image ------------
 \subsection{Load the microSD Card Image}
 
-Before attempting to copy the Linux system image to the microSD card, verify the disk location on the OS X host. \cmdstr{mount} can be used from a terminal to check the mount point of the newly formatted card. \lstref{lst:osxmountsd} shows the truncated output of the \cmdstr{mount} command, showing the disk label and \texttt{/dev} tree mount point. In this example, the disk labeled 'UNTITLED' is the first and only partition on \texttt{/dev/disk4} as it was created during the card formatting step (with it's own file path \texttt{/dev/disk4s1}). 
+Before attempting to copy the Linux system image to the microSD card, verify the disk location on the OS X host. \cmdstr{mount} can be used from a terminal to check the mount point of the newly formatted card. \lstref{lst:osxmountsd} shows the truncated output of the \cmdstr{mount} command, showing the disk label and \texttt{/dev} tree mount point. In this example, the disk labeled 'UNTITLED' is the first and only partition on \texttt{/dev/disk4} as it was created during the card formatting step (with its own file path \texttt{/dev/disk4s1}). 
 
 
 \begin{lstlisting}[%
@@ -238,7 +238,7 @@ Last sector, +sectors or +size{K,M,G} (2048-15564799, default 15564799): (*@\bfs
 
 
 
-The default partition type for \cmdstr{fdisk} is \textbf{Linux} (type ID 83). The \textit{BOOT} partition needs to be formatted as \textbf{FAT32} (type ID 'C'). Do do this, the 't' command is used:
+The default partition type for \cmdstr{fdisk} is \textbf{Linux} (type ID 83). The \textit{BOOT} partition needs to be formatted as \textbf{FAT32} (type ID 'C'). To do this, the 't' command is used:
 
 
 \begin{lstlisting}[style=text]
@@ -271,7 +271,7 @@ Using default value 15564799
 \margininfonote{Always check the partition table before attempting to write it to the disk, using the 'p' command.}
 
 
-Before writing the parition table, you should verify the partition layout by printing it with the 'p' command. In this example, an 8GB SD card has been partitioned with a 128MB FAT32 \textit{BOOT} partition and the rest allocated for a Linux \textit{ROOTFS} partition.
+Before writing the partition table, you should verify the partition layout by printing it with the 'p' command. In this example, an 8GB SD card has been partitioned with a 128MB FAT32 \textit{BOOT} partition and the rest allocated for a Linux \textit{ROOTFS} partition.
 
 
 \begin{lstlisting}[style=text]
@@ -304,7 +304,7 @@ Syncing disks.
 
 %%%-------- Formatting Partitions (mkfs/mke2fs) --------
 \subsection{Formatting Partitions (\cmdstr{mkfs}/\cmdstr{mke2fs})}
-With a partitioned SD card, the partitions need to be formatted with the necessary filesystem type. For the \textit{BOOT} partition, the filesystem type is \textbf{VFAT}. Formatting the \textit{BOOT} partition can be done using the \texttt{mkfs.vfat}\sidenote{Additional information on \texttt{mkfs/mke2fs} and it's front end tools can be found at: \url{http://www.tldp.org/HOWTO/Partition/formatting.html}}. To format a FAT32 filesystem on \texttt{/dev/sdb1} with a 'BOOT' disk label, the following command can be used:
+With a partitioned SD card, the partitions need to be formatted with the necessary filesystem type. For the \textit{BOOT} partition, the filesystem type is \textbf{VFAT}. Formatting the \textit{BOOT} partition can be done using the \texttt{mkfs.vfat}\sidenote{Additional information on \texttt{mkfs/mke2fs} and its front end tools can be found at: \url{http://www.tldp.org/HOWTO/Partition/formatting.html}}. To format a FAT32 filesystem on \texttt{/dev/sdb1} with a 'BOOT' disk label, the following command can be used:
 
 
 \begin{lstlisting}
