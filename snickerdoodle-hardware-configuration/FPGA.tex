@@ -1,5 +1,5 @@
 \section{Introduction}
-The versatility of snickerdoodle is due to it's software definable and reconfigurable hardware interface. The on-board Zynq-7000's programmable logic allows for the hardware interface to be defined by a bitstream that can be generated in a way that is exceedingly similar to software and application development. The development environment, Vivado\textregistered, has been architected in such a way that the transition between developing for the programmable logic (PL) and processing subsystems (PS) is seamless. \\
+The versatility of snickerdoodle is due to its software definable and reconfigurable hardware interface. The on-board Zynq-7000's programmable logic allows for the hardware interface to be defined by a bitstream that can be generated in a way that is exceedingly similar to software and application development. The development environment, Vivado\textregistered, has been architected in such a way that the transition between developing for the programmable logic (PL) and processing subsystems (PS) is seamless. \\
 
 
 \margininfonote{Portions of this guide have been excerpted and adapted from the Xilinx\textregistered\ Wiki found at \url{http://www.wiki.xilinx.com/}}
@@ -40,7 +40,7 @@ wget https://github.com/krtkl/snickerdoodle-board-files/archive/master.zip
 
 \margincautionnote{Moving or copying files into the Vivado install directory will require root permissions just as installing any program would.}
 
-After downloading the board files archive, the files will need to be installed in the proper location so that they may be read by Vivado. The directory that Vivado uses to load board files when starting is relative to it's install location. Typically, Vivado is installed at \texttt{/opt/Xilinx/Vivado/<release>}. The board files are located at \texttt{<vivado\_install\_dir>/data/boards/board\_files}. In this example, the board files will be copied to the corresponding directory of a 2015.4 release. \\
+After downloading the board files archive, the files will need to be installed in the proper location so that they may be read by Vivado. The directory that Vivado uses to load board files when starting is relative to its install location. Typically, Vivado is installed at \texttt{/opt/Xilinx/Vivado/<release>}. The board files are located at \texttt{<vivado\_install\_dir>/data/boards/board\_files}. In this example, the board files will be copied to the corresponding directory of a 2015.4 release. \\
 
 \noindent
 The only files that should be installed are the \texttt{snickerdoodle} and \texttt{snickerdoodle\_black} directories which contain the board files for the corresponding snickerdoodle version. An exclusion file (\texttt{EXCLUDE}) is included in the archive to help with the copying process and prevent extraneous files (documentation, README, etc.) from being copied into the board files directory. \\
@@ -74,7 +74,7 @@ Creating a new project can be done by selecting \texttt{\bfseries File $\rightar
 
 
 \noindent
-The first step to creating a new Vivado project is to select the project name and parent directory. By default, Vivado will create a new subdirectory for which to store the project files. It is highly recommended that this setting be left unchanged to keep the project files and directories organized and easily accessible for development (\ie from the SDK). \figref{fig:vivadonewprojectname} shows the input of the project name and parent directory when creating a new project. \\
+The first step to creating a new Vivado project is to select the project name and parent directory. By default, Vivado will create a new subdirectory to store the project files. It is highly recommended that this setting be left unchanged to keep the project files and directories organized and easily accessible for development (\ie from the SDK). \figref{fig:vivadonewprojectname} shows the input of the project name and parent directory when creating a new project. \\
 
 \begin{figure}
 	\centering
@@ -84,7 +84,7 @@ The first step to creating a new Vivado project is to select the project name an
 \end{figure}
 
 \subsection{Project Type and Sources}
-At this point in the project creation process, IP and design sources can be added to the project. If you would like to include existing sources, you will prompted to include those before choosing a project board. If you choose not to include any existing assets or constraints, the "Do no specify sources..." checkbox, shown in \figref{fig:newprojecttype}, can be selected to skip this step. Sources can be added to the project at any time after creation as outlined \hyperref[sub:addsources]{below}.\\
+At this point in the project creation process, IP and design sources can be added to the project. If you would like to include existing sources, you will be prompted to include those before choosing a project board. If you choose not to include any existing assets or constraints, the "Do no specify sources..." checkbox, shown in \figref{fig:newprojecttype}, can be selected to skip this step. Sources can be added to the project at any time after creation as outlined \hyperref[sub:addsources]{below}.\\
 
 \begin{figure}
 	\centering

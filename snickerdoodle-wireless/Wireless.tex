@@ -284,7 +284,7 @@ wpa_cli -i wlan0 add_network
 
 
 \subsection{Setting Network Parameters}
-After adding a network, it can be configured using a '\texttt{0}' index for any \texttt{set\_network} commands that follow. Configuring the network parameters is done through a series of \texttt{set\_network} commands that specify the characteristics of the network based on it's authentication/security type and the credentials specific to the network. Below is an example of an unsecured (open) network. The \texttt{set\_network} commands for other network configuration types can be found \hyperref[sec:wpacliconfigs]{at the end of this document}\\
+After adding a network, it can be configured using a '\texttt{0}' index for any \texttt{set\_network} commands that follow. Configuring the network parameters is done through a series of \texttt{set\_network} commands that specify the characteristics of the network based on it's authentication/security type and the credentials specific to the network. Below is an example of an unsecured (open) network. The \texttt{set\_network} commands for other network configuration types can be found \hyperref[sec:wpacliconfigs]{at the end of this document}. \\
 
 \begin{lstlisting}[style=text]
 wpa_cli -i wlan0 set_network 0 auth_alg OPEN
