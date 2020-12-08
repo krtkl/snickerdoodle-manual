@@ -13,7 +13,7 @@
 % -----------------------------------------------------
 \section{Load microSD Card Using Windows}
 
-Because Windows does not support reading/writing of Linux filesystems (ext2, etc.), the partitioning and formatting of the microSD card must be done with disk images. The disk image contains all of the information required to define the partition scheme, disk format and file system contents. This includes the boot partition components (\file{BOOT.bin}, \file{devicetree.dtb}, etc.) as well as the root filesystem partition and it's components.
+Because Windows does not support reading/writing of Linux filesystems (ext2, etc.), the partitioning and formatting of the microSD card must be done with disk images. The disk image contains all of the information required to define the partition scheme, disk format and file system contents. This includes the boot partition components (\file{BOOT.bin}, \file{devicetree.dtb}, etc.) as well as the root filesystem partition and its components.
 
 
 %%%--------- Format the microSD Card ----------
@@ -100,7 +100,7 @@ The SD Association supports an SD card formatting utility for OS X machines. The
 %%%--------- Load the microSD Card Image ------------
 \subsection{Load the microSD Card Image}
 
-Before attempting to copy the Linux system image to the microSD card, verify the disk location on the OS X host. \cmdstr{mount} can be used from a terminal to check the mount point of the newly formatted card. \lstref{lst:osxmountsd} shows the truncated output of the \cmdstr{mount} command, showing the disk label and \texttt{/dev} tree mount point. In this example, the disk labeled 'UNTITLED' is the first and only partition on \texttt{/dev/disk4} as it was created during the card formatting step (with it's own file path \texttt{/dev/disk4s1}). 
+Before attempting to copy the Linux system image to the microSD card, verify the disk location on the OS X host. \cmdstr{mount} can be used from a terminal to check the mount point of the newly formatted card. \lstref{lst:osxmountsd} shows the truncated output of the \cmdstr{mount} command, showing the disk label and \texttt{/dev} tree mount point. In this example, the disk labeled 'UNTITLED' is the first and only partition on \texttt{/dev/disk4} as it was created during the card formatting step (with its own file path \texttt{/dev/disk4s1}). 
 
 
 \begin{lstlisting}[%
@@ -187,17 +187,17 @@ $ umount /dev/sdb1
 \end{lstlisting}
 
 
-Once the SD card has been located, we can partition it for the Linux system (\textit{BOOT} partition) and root filesystem (\textit{ROOTFS} partition) using \href{http://linux.die.net/man/8/fdisk}{\cmdstr{fdisk}}. Additional information on \cmdstr{fdisk} is available from the \href{http://tldp.org/HOWTO/Partition/fdisk_partitioning.html}{Linux Documentation Project}. \cmdstr{fdisk} must be run with root permissions (\texttt{sudo}) using the disk parent as the argument (do not use the parition number in the argument). 
+Once the SD card has been located, we can partition it for the Linux system (\textit{BOOT} partition) and root filesystem (\textit{ROOTFS} partition) using \href{http://linux.die.net/man/8/fdisk}{\cmdstr{fdisk}}. Additional information on \cmdstr{fdisk} is available from the \href{http://tldp.org/HOWTO/Partition/fdisk_partitioning.html}{Linux Documentation Project}. \cmdstr{fdisk} must be run with root permissions (\texttt{sudo}) using the disk parent as the argument (do not use the partition number in the argument). 
 
 
 \begin{lstlisting}[style=text]
-$ fdisk /dev/sdb
+$ sudo fdisk /dev/sdb
 \end{lstlisting}
 
 
 \margincautionnote{Do NOT include any partition number (in the example case '1') when running \cmdstr{fdisk} on the SD card. '\texttt{/dev/sdb}' NOT '\texttt{/dev/sdb1}'}
 
-From within the \texttt{fdisk} interface, we can view the parition table at any time using the 'p' command. In this example, an 8GB SD card with a single FAT32 partition is being used and will be re-partitioned for snickerdoodle.
+From within the \texttt{fdisk} interface, we can view the partition table at any time using the 'p' command. In this example, an 8GB SD card with a single FAT32 partition is being used and will be re-partitioned for snickerdoodle.
 
 
 \begin{lstlisting}[style=text]
@@ -238,7 +238,7 @@ Last sector, +sectors or +size{K,M,G} (2048-15564799, default 15564799): (*@\bfs
 
 
 
-The default partition type for \cmdstr{fdisk} is \textbf{Linux} (type ID 83). The \textit{BOOT} partition needs to be formatted as \textbf{FAT32} (type ID 'C'). Do do this, the 't' command is used:
+The default partition type for \cmdstr{fdisk} is \textbf{Linux} (type ID 83). The \textit{BOOT} partition needs to be formatted as \textbf{FAT32} (type ID 'C'). To do this, the 't' command is used:
 
 
 \begin{lstlisting}[style=text]
@@ -271,7 +271,7 @@ Using default value 15564799
 \margininfonote{Always check the partition table before attempting to write it to the disk, using the 'p' command.}
 
 
-Before writing the parition table, you should verify the partition layout by printing it with the 'p' command. In this example, an 8GB SD card has been partitioned with a 128MB FAT32 \textit{BOOT} partition and the rest allocated for a Linux \textit{ROOTFS} partition.
+Before writing the partition table, you should verify the partition layout by printing it with the 'p' command. In this example, an 8GB SD card has been partitioned with a 128MB FAT32 \textit{BOOT} partition and the rest allocated for a Linux \textit{ROOTFS} partition.
 
 
 \begin{lstlisting}[style=text]
@@ -304,11 +304,11 @@ Syncing disks.
 
 %%%-------- Formatting Partitions (mkfs/mke2fs) --------
 \subsection{Formatting Partitions (\cmdstr{mkfs}/\cmdstr{mke2fs})}
-With a partitioned SD card, the partitions need to be formatted with the necessary filesystem type. For the \textit{BOOT} partition, the filesystem type is \textbf{VFAT}. Formatting the \textit{BOOT} partition can be done using the \texttt{mkfs.vfat}\sidenote{Additional information on \texttt{mkfs/mke2fs} and it's front end tools can be found at: \url{http://www.tldp.org/HOWTO/Partition/formatting.html}}. To format a FAT32 filesystem on \texttt{/dev/sdb1} with a 'BOOT' disk label, the following command can be used:
+With a partitioned SD card, the partitions need to be formatted with the necessary filesystem type. For the \textit{BOOT} partition, the filesystem type is \textbf{VFAT}. Formatting the \textit{BOOT} partition can be done using the \texttt{mkfs.vfat}\sidenote{Additional information on \texttt{mkfs/mke2fs} and its front end tools can be found at: \url{http://www.tldp.org/HOWTO/Partition/formatting.html}}. To format a FAT32 filesystem on \texttt{/dev/sdb1} with a 'BOOT' disk label, the following command can be used:
 
 
 \begin{lstlisting}
-$ mkfs.vfat -n BOOT /dev/sdb1
+$ sudo mkfs.vfat -n BOOT /dev/sdb1
 \end{lstlisting}
 
 
@@ -390,10 +390,12 @@ The \textit{BOOT} components can be installed onto the SD card using the \texttt
 
 
 \begin{lstlisting}
-$ cp BOOT.bin /media/user/BOOT
-$ cp uEnv.txt /media/user/BOOT
-$ cp devicetree.dtb /media/user/BOOT
-$ cp uImage /media/user/BOOT
+$ cd snickerdoodle-linux-prebuilt/snickerdoodle
+$ cd boot_images
+$ cp BOOT.bin /media/$USER/BOOT
+$ cp uEnv.txt /media/$USER/BOOT
+$ cp devicetree.dtb /media/$USER/BOOT
+$ cp uImage /media/$USER/BOOT
 \end{lstlisting}
 
 
@@ -413,7 +415,7 @@ The root filesystem can be extracted directly into the \textit{ROOTFS} partition
 
 \begin{fullwidth}
 \begin{lstlisting}
-$ tar -C /media/user/ROOTFS -xvzf snickerdoodle-ubuntu-14.04.tar.gz
+$ tar -C /media/$USER/ROOTFS -xvzf snickerdoodle-ubuntu-14.04.tar.gz
 \end{lstlisting}
 \end{fullwidth}
 
@@ -429,6 +431,27 @@ $ eject /dev/sdb
 \end{lstlisting}
 
 
+~\\
+\noindent
+Now that the microSD card has been partitioned, formatted and populated with the Linux files, it is ready to be installed onto snickerdoodle and booted. Install the microSD card into the card cage (J6) and connect power on either the micro USB connector (J1) or the power pins on J2. The familiar Ubuntu boot console should start and you will have access to a terminal to begin configuration and development of snickerdoodle. 
+
+\begin{figure}
+	\centering
+	\includegraphics{images/SD_microSD.pdf}
+	\caption{snickerdoodle SD Card Connector with Installed microSD Card}
+\end{figure}
 
 
+\begin{fullwidth}
+\begin{lstlisting}[%
+  backgroundcolor=\color{black},
+  basicstyle={\small\ttfamily\color{green}}
+  ]
+Welcome to Ubuntu 14.04 (GNU/Linux 3.14.0-xilinx-dirty armv7l)
+
+ * Documentation:  http://www.ubuntu.com
+root@snickerdoodle:~/workspace# python hello_world.py 
+Congratulations! You've run your first python script on snickerdoodle!
+\end{lstlisting}
+\end{fullwidth}
 
